@@ -44,9 +44,9 @@ async function startServer(server: http.Server | https.Server): Promise<void> {
     const url = `${SERVER_PROTOCOL || 'http'}://${SERVER_HOST || 'localhost'}:${SERVER_PORT || 4000}`
     logger.info(`Server is now running on ${gach(url).color('lightBlue').bold().text} in ${NODE_ENV || 'development'} mode`)
   })
-}
+};
 
-;(async () => {
+(async () => {
   try {
     await dbConnect()
     await startServer(server)

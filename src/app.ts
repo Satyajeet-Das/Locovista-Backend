@@ -43,7 +43,7 @@ app.use(logger)
 
 // ------ Require all routes
 import router from './routes'
-app.use('/api', router)
+app.use('/api/v1', router)
 
 // ------ Add Response Transformer (& error handler) to system
 import transformer from './middlewares/transformer'
