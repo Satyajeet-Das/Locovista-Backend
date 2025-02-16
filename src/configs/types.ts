@@ -12,12 +12,8 @@ export interface JwtModel {
 export interface EnvironmentModel {
   readonly NODE_ENV: string
   readonly APP_ENV: string
-  readonly DB_HOST: string
   readonly DB_USER?: string
   readonly DB_PASS?: string
-  readonly DB_PORT: number
-  readonly DB_NAME: string
-  readonly DB_TYPE: string
   readonly DB_CONNECTION: string
   readonly SERVER_PROTOCOL: string
   readonly SERVER_HOST: string
