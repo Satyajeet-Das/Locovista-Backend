@@ -2,9 +2,9 @@ import express from 'express'
 const router = express.Router()
 
 // Add Controllers & Validators
-import Controller from '../controllers/sample'
-import Validator from '../validators/sample'
-import { checkToken, checkRole } from '../middlewares/check_auth'
+// import Controller from '../controllers/sample'
+// import Validator from '../validators/sample'
+// import { checkToken, checkRole } from '../middlewares/check_auth'
 
 // (action)             (verb)    (URI)
 // create:              POST      - /samples
@@ -35,7 +35,8 @@ import { checkToken, checkRole } from '../middlewares/check_auth'
  *         "400":
  *           $ref: '#/components/responses/BadRequest'
  */
-router.route('').post(Validator.create, Controller.create)
+
+// router.route('').post(Validator.create, Controller.create)
 
 /**
  * @openapi
@@ -67,7 +68,7 @@ router.route('').post(Validator.create, Controller.create)
  *         "400":
  *           $ref: '#/components/responses/BadRequest'
  */
-router.route('').get(Validator.list, Controller.list)
+// router.route('').get(Validator.list, Controller.list)
 
 /**
  * @openapi
@@ -91,7 +92,7 @@ router.route('').get(Validator.list, Controller.list)
  *         "404":
  *           $ref: '#/components/responses/NotFound'
  */
-router.route('/:sampleId').get(Validator.details, Controller.details)
+// router.route('/:sampleId').get(Validator.details, Controller.details)
 
 /**
  * @openapi
@@ -115,7 +116,7 @@ router.route('/:sampleId').get(Validator.details, Controller.details)
  *         "404":
  *           $ref: '#/components/responses/NotFound'
  */
-router.route('/:sampleId').put(Validator.update, Controller.update)
+// router.route('/:sampleId').put(Validator.update, Controller.update)
 // router.route('/:sampleId').patch(Validator.update, Controller.update)
 
 /**
@@ -139,8 +140,8 @@ router.route('/:sampleId').put(Validator.update, Controller.update)
  *           $ref: '#/components/responses/BadRequest'
  *         "404":
  *           $ref: '#/components/responses/NotFound'
- */
-router.route('/:sampleId').delete(Validator.delete, Controller.delete)
+*/
+// router.route('/:sampleId').delete(Validator.delete, Controller.delete)
 
 /**
  * @openapi
@@ -168,6 +169,6 @@ router.route('/:sampleId').delete(Validator.delete, Controller.delete)
  */
 router
   .route('/:sampleId/secure-action')
-  .post(checkToken, checkRole(), Validator.secureAction, Controller.secureAction)
+  // .post(checkToken, checkRole(), Validator.secureAction, Controller.secureAction)
 
 export default router
