@@ -23,6 +23,8 @@
   },
   "homepage": "https://github.com/amin-abbasi/typescript-boilerplate.git#readme",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.0",
     "dotenv": "16.4.7",
     "express": "4.21.2",
     "express-rate-limit": "7.5.0",
@@ -38,10 +40,12 @@
     "socket.io": "4.8.1",
     "swagger-jsdoc": "6.2.8",
     "swagger-ui-express": "5.0.1",
+    "twilio": "^5.4.4",
     "typeorm": "0.3.20",
     "undici": "7.2.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/express": "5.0.0",
     "@types/helmet": "^0.0.48",
     "@types/jest": "29.5.14",

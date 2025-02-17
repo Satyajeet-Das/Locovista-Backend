@@ -15,6 +15,8 @@ export interface EnvironmentModel {
   readonly DB_USER?: string
   readonly DB_PASS?: string
   readonly DB_CONNECTION: string
+  readonly TWILIO_ACCOUNT_SSID: string
+  readonly TWILIO_SERVICE_SSID: string
   readonly SERVER_PROTOCOL: string
   readonly SERVER_HOST: string
   readonly SERVER_PORT: number
