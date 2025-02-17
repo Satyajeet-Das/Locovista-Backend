@@ -8,13 +8,14 @@ import "dotenv/config";
 
 export const customerMobileSignUpOTP = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { mobile } = req.body;
-        if(!mobile) {
-            res.status(400).json({success: false, error: "Mobile number is required" });
+        const { mobile }: { mobile: string } = req.body;
+        if (!mobile) {
+            res.status(400).json({ success: false, error: "Mobile number is required" });
             return;
         }
 
         const customer = await Customer.findOne({ mobile });
+
         if (customer) {
             res.status(400).json({success: false, error: "Mobile number already exists" });
             return;
@@ -22,13 +23,14 @@ export const customerMobileSignUpOTP = async (req: Request, res: Response): Prom
 
         // Send OTP to the mobile number
         const otp = generateOTP();
-        const newCustomer = new NewCustomer({ mobile, otp, expiryOtp: new Date(Date.now() + 600000) });
-        newCustomer.save();
-        await sendOTP(mobile, otp.toString());
+        // const newCustomer = new NewCustomer({ mobile, otp, otpExpiry: new Date(Date.now() + 600000) });
+        await NewCustomer.findOneAndUpdate({ mobile }, { otp, otpExpiry: new Date(Date.now() + 600000) }, { upsert: true });
+        console.log(mobile.toString(),otp.toString());
+        await sendOTP(mobile.toString(), otp.toString());
 
         res.status(200).json({success: true, message: "OTP sent successfully" });
     } catch (error: any) {
-        res.status(400).json({success: false, error: error.message });
+        res.status(400).json({success: false, error: error });
     }
 }
 
@@ -41,6 +43,7 @@ export const verifyCustomerMobileSignUpOTP = async (req: Request, res: Response)
         }
 
         const newCustomer = await NewCustomer.findOne({ mobile });
+        console.log(newCustomer);
         if (!newCustomer) {
             res.status(400).json({success: false, error: "Mobile number not found" });
             return;
@@ -56,9 +59,9 @@ export const verifyCustomerMobileSignUpOTP = async (req: Request, res: Response)
             return;
         }
 
-        const customer = new Customer({ mobile, authOtp: otp, authOtpExpiry: new Date(Date.now() + 600000) });
-        await customer.save();
-    
+        // const customer = new Customer({ mobile, authOtp: otp, authOtpExpiry: new Date(Date.now() + 600000) });
+        // await customer.save();
+        await NewCustomer.findByIdAndUpdate(newCustomer._id, {otpExpiry: new Date(Date.now() + 6000000)});
         res.status(200).json({success: true, message: "Mobile number verified successfully" });
     } catch (error: any) {
         res.status(400).json({success: false, error: error.message });
@@ -121,8 +124,9 @@ export const customerLogin = async (req: Request, res: Response): Promise<void> 
                 res.status(400).json({success: false, error: "Email not found" });
                 return;
             }
-            if (customer.password !== password) {
-                res.status(400).json({success: false, error: "Invalid password" });
+            const isMatched = await customer.comparePassword(password);
+            if (!isMatched) {
+                res.status(400).json({ success: false, error: 'Invalid password' });
                 return;
             }
             const token = jwt.sign({ id: customer._id }, process.env.JWT_SECRET as string);
@@ -134,7 +138,8 @@ export const customerLogin = async (req: Request, res: Response): Promise<void> 
                 res.status(400).json({success: false, error: "Mobile number not found" });
                 return;
             }
-            if (customer.password !== password) {
+            const isMatched = await customer.comparePassword(password);
+            if (!isMatched) {
                 res.status(400).json({ success: false, error: 'Invalid password' });
                 return;
             }
@@ -146,8 +151,35 @@ export const customerLogin = async (req: Request, res: Response): Promise<void> 
     }catch (error: any) {
         res.status(400).json({ error: error.message });
     }
+}
+export const customerMobileLoginOTP = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { mobile }: { mobile: string } = req.body;
+        if (!mobile) {
+            res.status(400).json({ success: false, error: "Mobile number is required" });
+            return;
+        }
+
+        const customer = await Customer.findOne({ mobile });
+
+        if (!customer) {
+            res.status(400).json({success: false, error: "Mobile number not found" });
+            return;
+        }
+
+        // Send OTP to the mobile number
+        const otp = generateOTP();
+        // const newCustomer = new NewCustomer({ mobile, otp, otpExpiry: new Date(Date.now() + 600000) });
+        await Customer.findOneAndUpdate({ mobile }, { authOtp:otp, authOtpExpiry: new Date(Date.now() + 600000) }, { upsert: true });
+        console.log(mobile.toString(),otp.toString());
+        await sendOTP(mobile.toString(), otp.toString());
+
+        res.status(200).json({success: true, message: "OTP sent successfully" });
+    } catch (error: any) {
+        res.status(400).json({success: false, error: error });
     }
-export const customerLoginWithOTP = async (req: Request, res: Response): Promise<void> => {
+}
+export const LoginOtpVerification = async (req: Request, res: Response): Promise<void> => {
     try {
         const { mobile, otp } = req.body;
         if(!mobile || !otp) {
@@ -174,36 +206,83 @@ export const customerLoginWithOTP = async (req: Request, res: Response): Promise
     }
 }
 export const customerForgotPassword = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { email, mobile } = req.body;
-        if(!email && !mobile) {
-            res.status(400).json({success: false, error: "Email or mobile number is required" });
-            return;
-        }
-        if (email) {
-            const customer = await Customer.findOne({ email });
-            if (!customer) {
-                res.status(400).json({success: false, error: "Email not found" });
-                return;
-            }
-            const otp = generateOTP();
-            customer.authOtp = otp;
-            customer.authOtpExpiry = new Date(Date.now() + 600000);
-            await customer.save();
-            await sendOTP(customer.email, otp.toString());
-            res.status(200).json({success: true, message: "OTP sent successfully" });
-        }
+  try {
+    const { email, mobile } = req.body;
+    
+    // Validate if at least one field (email or mobile) is provided
+    if (!email && !mobile) {
+      res.status(400).json({ success: false, error: "Email or mobile number is required" });
+      return;
     }
-    catch (error: any) {
-        res.status(400).json({ error: error.message });
+
+    let customer;
+    
+    // Find customer by email if provided
+    if (email) {
+      customer = await Customer.findOne({ email });
     }
-}
+
+    // If email is not provided, find by mobile if provided
+    if (!customer && mobile) {
+      customer = await Customer.findOne({ mobile });
+    }
+
+    // If customer not found, return error
+    if (!customer) {
+      res.status(400).json({ success: false, error: "Customer not found" });
+      return;
+    }
+
+    // Generate OTP
+    const otp = generateOTP();
+
+    // Set OTP and expiry time
+    customer.authOtp = otp;
+    customer.authOtpExpiry = new Date(Date.now() + 600000); // OTP expires in 10 minutes
+
+    // Save the OTP to the customer record
+    await Customer.findByIdAndUpdate(customer._id, { authOtp: otp, authOtpExpiry: customer.authOtpExpiry });
+
+    // Send OTP to customer (via email or mobile)
+    await sendOTP(customer.mobile.toString(), otp.toString()); // Assuming email is used for sending OTP
+
+    // Return success message
+    res.status(200).json({ success: true, message: "OTP sent successfully" });
+
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 
 // Get customer by Id
 export const getCustomerById = async (req: Request, res: Response): Promise<void> => {
     try {
-        const customer = await Customer.findById(req.params.id);
+        const customer = await Customer.findById(req.params.id).select("-authOtp -authOtpExpiry -password");
         res.status(200).json({ success: true, data: customer });
+    } catch (error: any) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
+//update customer by id with security so that password can not be changed
+export const updateCustomerByIdWithSecurity = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const customer = await Customer.findById(req.params.id);
+        if (customer) {
+        const fieldsToRemove = ['password', 'mobile', 'authOtp', 'authOtpExpiry']
+
+        // Remove sensitive fields from request body
+        fieldsToRemove.forEach((field) => {
+        if (req.body[field]) {
+            delete req.body[field]
+        }
+        })
+        const updatedCustomer = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.status(200).json({ success: true, data: updatedCustomer });
+        } else {
+            res.status(400).json({ success: false, error: "Customer not found" });
+        }
     } catch (error: any) {
         res.status(400).json({ error: error.message });
     }
@@ -212,7 +291,7 @@ export const getCustomerById = async (req: Request, res: Response): Promise<void
 // Update customer by Id
 export const updateCustomerById = async (req: Request, res: Response): Promise<void> => {
     try {
-        const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true }).select("-authOtp -authOtpExpiry -password");
         res.status(200).json({ success: true, data: customer });
     }
     catch (error: any) {
@@ -220,42 +299,95 @@ export const updateCustomerById = async (req: Request, res: Response): Promise<v
     }
 }
 
-
-//customer reset password after verfiying otp
-export const customerResetPassword = async (req: Request, res: Response): Promise<void> => {
+//customer reset password for verfiying otp
+export const customerResetPasswordVerifyOtp = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { email, mobile, otp, password } = req.body;
-        if(!email && !mobile) {
-            res.status(400).json({success: false, error: "Email or mobile number is required" });
+        const { mobile, otp } = req.body;
+        if(!mobile) {
+            res.status(400).json({success: false, error: "Mobile number is required" });
             return;
         }
         if(!otp) {
             res.status(400).json({success: false, error: "OTP is required" });
             return;
         }
-        if(!password) {
-            res.status(400).json({success: false, error: "Password is required" });
+        const customer = await Customer.findOne({ mobile });
+        if (!customer) {
+            res.status(400).json({success: false, error: "Mobile number not found" });
             return;
         }
-        if (email) {
-            const customer = await Customer.findOne({ email });
-            if (!customer) {
-                res.status(400).json({success: false, error: "Email not found" });
-                return;
-            }
-            if (customer.authOtp !== otp) {
-                res.status(400).json({success: false, error: "Invalid OTP" });
-                return;
-            }
-            if (!customer.authOtpExpiry || new Date() > customer.authOtpExpiry) {
-                res.status(400).json({success: false, error: "OTP expired" });
-                return;
-            }
-            customer.password = password;
-            await customer.save();
-            res.status(200).json({success: true, message: "Password reset successfully" });
+        if (customer.authOtp !== otp) {
+            res.status(400).json({success: false, error: "Invalid OTP" });
+            return;
+        }   
+        if (!customer.authOtpExpiry || new Date() > customer.authOtpExpiry) {
+            res.status(400).json({success: false, error: "OTP expired" });
+            return;
         }
+        await Customer.findOneAndUpdate({ mobile }, { authOtp: otp, authOtpExpiry: new Date(Date.now() + 600000) }, { upsert: true })
+        res.status(200).json({success: true, message: "OTP Verified successfully" });
     } catch (error: any) {
         res.status(400).json({ error: error.message });
     }
 }
+//customer reset password after verfiying otp
+export const customerResetPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, mobile, otp, password } = req.body
+
+    // Validate that either email or mobile is provided
+    if (!email && !mobile) {
+      res.status(400).json({ success: false, error: 'Email or mobile number is required' });
+      return;
+    }
+
+    // Validate that OTP and password are provided
+    if (!otp) {
+        res.status(400).json({ success: false, error: 'OTP is required' });
+        return;
+    }
+
+    if (!password) {
+        res.status(400).json({ success: false, error: 'Password is required' });
+        return;
+    }
+
+    let customer;
+
+    // Look up the customer by email or mobile
+    if (email) {
+      customer = await Customer.findOne({ email })
+    }
+
+    if (!customer && mobile) {
+      customer = await Customer.findOne({ mobile })
+    }
+
+    // Check if the customer exists
+    if (!customer) {
+        res.status(400).json({ success: false, error: 'Customer not found' });
+        return;
+    }
+
+    // Check if OTP is valid
+    if (customer.authOtp !== otp) {
+        res.status(400).json({ success: false, error: 'Invalid OTP' });
+        return;
+    }
+
+    // Check if OTP has expired
+    if (!customer.authOtpExpiry || new Date() > customer.authOtpExpiry) {
+        res.status(400).json({ success: false, error: 'OTP expired' });
+        return;
+    }
+
+    // Save the updated password
+      await customer.save();
+
+    // Respond with success message
+    res.status(200).json({ success: true, message: 'Password reset successfully' })
+  } catch (error: any) {
+    res.status(400).json({ error: error.message })
+  }
+}
+

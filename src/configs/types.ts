@@ -18,6 +18,7 @@ export interface EnvironmentModel {
   readonly TWILIO_ACCOUNT_SSID: string
   readonly TWILIO_SERVICE_SSID: string
   readonly SERVER_PROTOCOL: string
+  readonly FAST2SMS_API_KEY: string
   readonly SERVER_HOST: string
   readonly SERVER_PORT: number
   readonly LOGGER_HOST: string

@@ -3,7 +3,7 @@ import { INewCustomer } from '../../types/model'
 
 const NewCustomerSchema: Schema = new Schema<INewCustomer>(
   {
-        mobile: { type: Number, required: true },
+        mobile: { type: String, required: true },
         otp: { type: Number, required: true },
         otpExpiry: { type: Date, required: true },
   },

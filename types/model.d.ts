@@ -11,7 +11,8 @@ interface ICustomer extends Document {
     createdAt: Date,
     gender?: "Male" | "Female" | "Others",
     authOtp?: number,
-    authOtpExpiry?: Date
+    authOtpExpiry?: Date,
+    comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
 
 interface INewCustomer extends Document{

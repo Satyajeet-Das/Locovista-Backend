@@ -1,25 +1,28 @@
-import twilio from 'twilio'
-import "dotenv/config";
+import axios from 'axios'
 
-const accountSid = process.env.TWILIO_ACCOUNT_SSID as string;
-const authToken = '[AuthToken]'
-const client = twilio(accountSid, authToken);
-const serviceSid = process.env.TWILIO_SERVICE_SSID as string;
-
-interface VerificationResponse {
-  status: string;
-}
-
-export const sendOTP = async (phoneNumber: string, code: string): Promise<string> => {
+export async function sendOTP(number: string, otp: string): Promise<void> {
+  const apiUrl = 'https://www.fast2sms.com/dev/bulkV2';
   try {
-    const verificationCheck: VerificationResponse = await client.verify.v2
-      .services(serviceSid)
-      .verificationChecks.create({ to: phoneNumber, code: code });
+    const response = await axios.post(apiUrl, {
+      route: 'q',
+      sender_id: 'FSTSMS',
+      numbers: number,
+      message: `Your OTP is ${otp}. It is valid for 10 minutes.`,
+      language: 'english',
+      flash: 0
+    }, {
+      headers: {
+        authorization: process.env.FAST2SMS_API_KEY as string, 
+        'Content-Type': 'application/json'
+      }
+    });
 
-    console.log('Verification Status:', verificationCheck.status);
-    return verificationCheck.status;
+    if (response.data.return === true) {
+      console.log('OTP sent successfully!')
+    } else {
+      console.log('Failed to send OTP!')
+    }
   } catch (error) {
-    console.error('Error:', error);
     throw error;
   }
-};
+}
