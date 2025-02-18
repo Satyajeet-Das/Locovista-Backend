@@ -50,6 +50,9 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1', docsRoutes);
 
+import retailerAuthRoutes from "./routes/retailerAuth.route";
+app.use('/api/v1/retailerAuth', retailerAuthRoutes);
+
 // ------ Add Response Transformer (& error handler) to system
 import transformer from './middlewares/transformer'
 app.use(transformer)
