@@ -31,10 +31,11 @@ export type BusinessTypeEnum = keyof typeof BusinessType;
 const RetailerSchema: Schema = new Schema<IRetailer>(
 {
   business_name: { type: String, required: true },
-  owner_name: { type: String, required: true },
+  fullName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  phone: { type: String, required: true },
+  mobile: { type: String, required: true },
+  profileImage: { type: String, default: '' },
   authOtp: { type: Number },
   authOtpExpiry: { type: Date },
   address: {
@@ -43,6 +44,8 @@ const RetailerSchema: Schema = new Schema<IRetailer>(
     state: { type: String, required: true },
     postal_code: { type: String, required: true },
     country: { type: String, required: true },
+    latitude: { type: Number },
+    longitude: { type: Number },
   },
   business_registration_certificate: { type: String, required: true }, // URL or reference to the certificate file
   gstin: { type: String, required: true }, // Goods and Services Tax Identification Number

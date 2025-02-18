@@ -45,6 +45,9 @@ app.use(logger)
 import authRoutes from "./routes/auth.route";
 app.use('/api/v1/auth', authRoutes)
 
+import retailerAuthRoutes from "./routes/retailerAuth.route";
+app.use('/api/v1/retailerAuth', retailerAuthRoutes);
+
 // ------ Add Response Transformer (& error handler) to system
 import transformer from './middlewares/transformer'
 app.use(transformer)

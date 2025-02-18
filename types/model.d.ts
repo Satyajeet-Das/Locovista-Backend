@@ -15,6 +15,13 @@ interface ICustomer extends Document {
     comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
 
+interface INewCustomer extends Document {
+  _id: Types.ObjectId,
+  mobile: Number,
+  otp: Number,
+  otpExpiry: Date,
+}
+
 export interface BankAccountDetails {
   bank_name: string;
   account_number: string;
@@ -22,13 +29,21 @@ export interface BankAccountDetails {
   ifsc_code: string;
 }
 
+interface INewRetailer extends Document {
+  _id: Types.ObjectId,
+  mobile: Number,
+  otp: Number,
+  otpExpiry: Date,
+}
+
 interface IRetailer extends Document {
   _id: Types.ObjectId;
   business_name: string;
-  owner_name: string;
+  fullName: string;
   email: string;
   password: string;
-  phone: string;
+  mobile: string;
+  profileImage: string;
   authOtp?: number;
   authOtpExpiry?: Date;
   address: {
@@ -37,6 +52,8 @@ interface IRetailer extends Document {
     state: string;
     postal_code: string;
     country: string;
+    latitude?: number;
+    longitude?: number;
   };
   business_registration_certificate: string; // URL or reference to the certificate file
   gstin: string; // Goods and Services Tax Identification Number
@@ -52,4 +69,5 @@ interface IRetailer extends Document {
   status: 'active' | 'inactive' | 'suspended'; // Status of the retailer account
   business_type: BusinessTypeEnum[]; // e.g. 'wholesale', 'retail', etc.
   transactions: Types.ObjectId[]; // Array of transaction ObjectIds
+  comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
