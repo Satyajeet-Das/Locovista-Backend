@@ -42,8 +42,13 @@ import logger from './middlewares/api_log'
 app.use(logger)
 
 // ------ Require all routes
+import docsRoutes from './routes/index';
 import authRoutes from "./routes/auth.route";
-app.use('/api/v1/auth', authRoutes)
+import productRoutes from "./routes/product.route";
+
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/products', productRoutes);
+app.use('/api/v1', docsRoutes);
 
 // ------ Add Response Transformer (& error handler) to system
 import transformer from './middlewares/transformer'
