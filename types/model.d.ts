@@ -57,6 +57,7 @@ interface IRetailer extends Document {
     latitude?: number;
     longitude?: number;
   };
+  products: Types.ObjectId[]; // Array of product ObjectIds
   business_registration_certificate: string; // URL or reference to the certificate file
   gstin: string; // Goods and Services Tax Identification Number
   tin?: string; // Taxpayer Identification Number (if applicable)
@@ -75,9 +76,11 @@ interface IRetailer extends Document {
 }
 
 interface IReview {
-    user: string;
+    user: Types.ObjectId;
     comment: string;
     rating: number;
+    productId: Types.ObjectId;
+    retailerId: Types.ObjectId;
     createdAt: Date;
   }
   
@@ -86,14 +89,12 @@ interface IReview {
     name: string;                       // Product name
     description: string;                // Detailed description of the product
     category: ProductCategory;        // Category the product belongs to
-    price: number;                      // Regular price of the product
-    discountPrice?: number;             // Discounted price, optional
+    mrp: number;                      // Regular price of the product
+    sellingPrice: number;             // Selling price of the product
     discountPercentage?: number;        // Discount percentage, optional
     stockQuantity: number;              // Available stock quantity
-    retailerId: Types.ObjectId;         // Reference to the retailer/shop
     images: string[];                   // List of image URLs for the product
-    rating: number;                     // Average rating of the product (from 0 to 5)
-    reviews: IReview[];                 // Array of reviews for the product
+    overallRating: number;                     // Average rating of the product (from 0 to 5)
     createdAt: Date;                    // Date when the product was added
     updatedAt?: Date;                   // Date when the product was last updated (optional)
   }

@@ -9,9 +9,9 @@ router.get('/product/:id', ProductControllers.getProductById);
 router.post('/product', upload.array('images',10), ProductControllers.addProduct);
 router.put('/product/:id',upload.array('images', 10), ProductControllers.updateProduct);
 router.delete('/product/:id', ProductControllers.deleteProduct);
-router.post('/product/:id/review', ProductControllers.addReview);
-router.get('/product/:id/review', ProductControllers.getAllReviews);
-router.get('/product/:name/retailer', ProductControllers.getRetailerIdsByProductName);
-router.post('/product/compare', ProductControllers.compareProducts);
+router.get('/product/:productId/review', ProductControllers.getAllReviews);
+router.post('/product/:productId/review', ProductControllers.addReview);
+router.get('/product/retailer/:name', ProductControllers.getRetailerIdsByProductName);
+// router.post('/product/compare', ProductControllers.compareProducts);
 
 export default router;

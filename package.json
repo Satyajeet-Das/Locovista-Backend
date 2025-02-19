@@ -48,6 +48,7 @@
     "undici": "7.2.0"
   },
   "devDependencies": {
+    "@types/aws-sdk": "^2.7.4",
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "5.0.0",
     "@types/helmet": "^0.0.48",

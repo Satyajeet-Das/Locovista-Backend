@@ -36,6 +36,7 @@ const RetailerSchema: Schema = new Schema<IRetailer>(
   password: { type: String, required: true },
   mobile: { type: String, required: true },
   profileImage: { type: String, default: '' },
+  products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   authOtp: { type: Number },
   authOtpExpiry: { type: Date },
   address: {
