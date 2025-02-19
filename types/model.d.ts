@@ -54,8 +54,10 @@ interface IRetailer extends Document {
     state: string;
     postal_code: string;
     country: string;
-    latitude?: number;
-    longitude?: number;
+    location?: {
+      type: string;
+      coordinates: [number, number];
+    }
   };
   products: Types.ObjectId[]; // Array of product ObjectIds
   business_registration_certificate: string; // URL or reference to the certificate file
