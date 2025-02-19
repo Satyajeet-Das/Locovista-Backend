@@ -45,8 +45,10 @@ const RetailerSchema: Schema = new Schema<IRetailer>(
     state: { type: String, required: true },
     postal_code: { type: String, required: true },
     country: { type: String, required: true },
-    latitude: { type: Number },
-    longitude: { type: Number },
+    location: {
+      type: { type: String, enum: ['Point'], required: true, default: 'Point' }, // GeoJSON format
+      coordinates: { type: [Number], required: true }, // [longitude, latitude]
+    },
   },
   business_registration_certificate: { type: String, required: true }, // URL or reference to the certificate file
   gstin: { type: String, required: true }, // Goods and Services Tax Identification Number

@@ -14,4 +14,5 @@ router.post('/product/:productId/review', ProductControllers.addReview);
 router.get('/product/retailer/:name', ProductControllers.getRetailerIdsByProductName);
 // router.post('/product/compare', ProductControllers.compareProducts);
 
+
 export default router;
