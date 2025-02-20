@@ -496,5 +496,5 @@ export const getNearbyRetailers = async (req: Request, res: Response): Promise<v
     }
   };
   
-
+  
 
