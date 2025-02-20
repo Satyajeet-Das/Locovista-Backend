@@ -45,13 +45,15 @@ app.use(logger)
 import docsRoutes from './routes/index';
 import authRoutes from "./routes/auth.route";
 import productRoutes from "./routes/product.route";
+import retailerRoutes from "./routes/retailer.route";
+import serviceRoutes from "./routes/service.route";
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1', docsRoutes);
-
-import retailerRoutes from "./routes/retailer.route";
 app.use('/api/v1/retailer', retailerRoutes);
+app.use('/api/v1/service', serviceRoutes);
+
 
 // ------ Add Response Transformer (& error handler) to system
 import transformer from './middlewares/transformer'
