@@ -9,4 +9,40 @@ export enum ProductCategory {
     TOYS = 'Toys',
     AUTOMOTIVE = 'Automotive',
     HEALTH = 'Health',
-  }
+}
+
+export enum BusinessCategory {
+  RETAIL = "retail",
+  WHOLESALE = "wholesale",
+  SERVICE = "service",
+  MANUFACTURER = "manufacturer",
+  DISTRIBUTOR = "distributor",
+  FRANCHISE = "franchise",
+  GROCERY = "grocery",
+  FASHION = "fashion",
+  ELECTRONICS = "electronics",
+  FURNITURE = "furniture",
+  AUTOMOTIVE = "automotive",
+  BEAUTY = "beauty",
+  HEALTH = "health",
+  FOOD_AND_BEVERAGE = "food_and_beverage",
+  BOOKSTORE = "bookstore",
+  ART = "art",
+  SPORTS = "sports",
+  TOYS = "toys",
+  JEWELRY = "jewelry",
+  PHARMACY = "pharmacy",
+}
+
+export enum ServiceCategory {
+  WATER_REPAIR = "water_repair",
+  ELECTRICITY_REPAIR = "electricity_repair",
+  PLUMBING = "plumbing",
+  CARPENTRY = "carpentry",
+  HVAC = "hvac",
+  COMPUTER_REPAIR = "computer_repair",
+  APPLIANCE_REPAIR = "appliance_repair",
+  AUTO_REPAIR = "auto_repair",
+  PAINTING = "painting",
+  CLEANING = "cleaning",
+}
