@@ -101,7 +101,7 @@ export const customerSignUp = async (req: Request, res: Response): Promise<void>
         const registeredCustomer = new Customer({ fullName, email, password, mobile, dob, gender, profileImage });
         await registeredCustomer.save();
         const token = jwt.sign({ id: registeredCustomer._id }, process.env.JWT_SECRET as string);
-        res.status(201).json({ success: true, token: token });
+        res.status(201).json({ success: true, message: "User Signed Up Successfully", token: token });
     } catch (error: any) {
         res.status(400).json({success: false, message: error.message });
     }
@@ -200,7 +200,7 @@ export const LoginOtpVerification = async (req: Request, res: Response): Promise
             return;
         }
         const token = jwt.sign({ id: customer._id }, process.env.JWT_SECRET as string);
-        res.status(200).json({ token });
+        res.status(200).json({ success: true, message: "User Login Successful",token });
     } catch (error: any) {
         res.status(400).json({ success: false, message: error.message });
     }
