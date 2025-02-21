@@ -1,7 +1,7 @@
-import { Request, Response } from 'express'
-import Services from '../models/services'
-import Review from '../models/review'
-import 'dotenv/config'
+import { Request, Response } from 'express';
+import Services from '../models/services';
+import Review from '../models/review';
+import 'dotenv/config';
 
 //create the service in the schema taking all input for the services
 export const createService = async (req: Request, res: Response): Promise<void> => {
@@ -15,11 +15,11 @@ export const createService = async (req: Request, res: Response): Promise<void> 
       rating,
       category,
       retailerId,
-    })
-    await service.save()
-    res.status(201).json({ message: 'Service created successfully', service })
+    });
+    await service.save();
+    res.status(201).json({success: true, message: 'Service created successfully', service });
   } catch (error) {
-    throw error
+    res.status(500).json({success: false, message: 'Internal server error' });
   }
 }
 // Get All Products with Pagination and Filters for various fields like price and category minPrice and max Price and name and rating
@@ -44,18 +44,18 @@ export const getAllServices = async (req: Request, res: Response): Promise<void>
       .skip((Number(page) - 1) * Number(limit))
       .exec()
     const count = await Services.countDocuments(query)
-    res.status(200).json({ services, totalPages: Math.ceil(count / Number(limit)), currentPage: Number(page) })
+    res.status(200).json({success: true, services, totalPages: Math.ceil(count / Number(limit)), currentPage: Number(page) })
   } catch (error) {
-    throw error;
+    res.status(500).json({success: false, message: 'Internal server error' });
   }
 }
 // Get Service by Id
 export const getServiceById = async (req: Request, res: Response): Promise<void> => {
   try {
     const service = await Services.findById(req.params.id)
-    res.status(200).json({ service })
+    res.status(200).json({success: true, service })
   } catch (error) {
-    throw error
+    res.status(500).json({success: false, message: 'Internal server error' })
   }
 }
 // Update Service by Id
@@ -71,27 +71,27 @@ export const updateService = async (req: Request, res: Response): Promise<void> 
     if (rating) updateFields.rating = rating
 
     const service = await Services.findByIdAndUpdate(req.params.id, updateFields, { new: true })
-    res.status(200).json({ message: 'Service updated successfully', service })
+    res.status(200).json({success: true, message: 'Service updated successfully', service })
   } catch (error) {
-    throw error
+    res.status(500).json({success: false, message: 'Internal server error' })
   }
 }
 // Delete Service by Id
 export const deleteService = async (req: Request, res: Response): Promise<void> => {
   try {
     const service = await Services.findByIdAndDelete(req.params.id)
-    res.status(200).json({ message: 'Service deleted successfully', service })
+    res.status(200).json({success: true, message: 'Service deleted successfully', service })
   } catch (error) {
-    throw error
+    res.status(500).json({success: false, message: 'Internal server error' })
   }
 }
 // Get All Reviews for a Service
 export const getAllReviews = async (req: Request, res: Response): Promise<void> => {
   try {
     const reviews = await Review.find({ serviceId: req.params.id })
-    res.status(200).json({ reviews })
+    res.status(200).json({success: true, reviews })
   } catch (error) {
-    throw error
+    res.status(500).json({success: false, message: 'Internal server error' })
   }
 }
 // add a review for a service from customer id to service id and retailer id
@@ -106,9 +106,9 @@ export const addReview = async (req: Request, res: Response): Promise<void> => {
       rating,
     })
     await newReview.save()
-    res.status(201).json({ message: 'Review added successfully', newReview })
+    res.status(201).json({success: true, message: 'Review added successfully', newReview })
   } catch (error) {
-    throw error
+    res.status(500).json({success: false, message: 'Internal server error' })
   }
 }
 
@@ -116,9 +116,9 @@ export const addReview = async (req: Request, res: Response): Promise<void> => {
 export const getServicesByRetailerId = async (req: Request, res: Response): Promise<void> => {
   try {
     const services = await Services.find({ retailerId: req.params.id })
-    res.status(200).json({ services })
+    res.status(200).json({success: true, services })
   } catch (error) {
-    throw error
+    res.status(500).json({success: false, message: 'Internal server error' })
   }
 }
 
