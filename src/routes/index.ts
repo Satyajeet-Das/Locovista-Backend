@@ -8,6 +8,7 @@ router.use('/v1/samples', sampleRouter)
 // API Documentation Swagger
 import swaggerUi from 'swagger-ui-express'
 import { specs } from '../services'
+import { WEBHOOK_CALLBACK, WEBHOOK_EVENT_HANDLER } from '../controllers/webhook.controller'
 router.use('/docs', swaggerUi.serve)
 router.get('/docs', swaggerUi.setup(specs, { explorer: true }))
 
@@ -15,6 +16,10 @@ router.get('/docs', swaggerUi.setup(specs, { explorer: true }))
 router.get('/health', (_req: Request, res: Response) => {
   res.send('200')
 })
+
+router.get('/webhook', WEBHOOK_CALLBACK)
+
+router.post('/webhook', WEBHOOK_EVENT_HANDLER)
 
 export default router
 
