@@ -4,6 +4,7 @@ import upload  from "../configs/multerConfig";
 
 const router: Router = Router();
 
+router.get('/product/allCategories', ProductControllers.getAllCategories);
 router.get('/product', ProductControllers.getAllProducts);
 router.get('/product/:id', ProductControllers.getProductById);
 router.post('/product', upload.array('images',10), ProductControllers.addProduct);
@@ -13,6 +14,5 @@ router.get('/product/:productId/review', ProductControllers.getAllReviews);
 router.post('/product/:productId/review', ProductControllers.addReview);
 router.get('/product/retailer/:name', ProductControllers.getRetailerIdsByProductName);
 // router.post('/product/compare', ProductControllers.compareProducts);
-
 
 export default router;

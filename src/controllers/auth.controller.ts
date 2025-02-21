@@ -3,6 +3,7 @@ import Customer from "../models/customer";
 import NewCustomer from "../models/newUser";
 import jwt from "jsonwebtoken";
 import { generateOTP } from "../utils/generateOTP";
+import { ConvertToMongoId } from "../utils/helper";
 import { sendOTP } from "../utils/sendSMS";
 import "dotenv/config";
 
@@ -65,6 +66,7 @@ export const verifyCustomerMobileSignUpOTP = async (req: Request, res: Response)
         res.status(200).json({success: true, message: "Mobile number verified successfully" });
     } catch (error: any) {
         res.status(400).json({success: false, message: error.message });
+        console.log(error);
     }
 }
 
@@ -144,7 +146,7 @@ export const customerLogin = async (req: Request, res: Response): Promise<void> 
                 return;
             }
             const token = jwt.sign({ id: customer._id }, process.env.JWT_SECRET as string)
-            res.status(200).json({ token })
+            res.status(200).json({ customer, token })
         }
             
         
@@ -191,16 +193,16 @@ export const LoginOtpVerification = async (req: Request, res: Response): Promise
             res.status(400).json({success: false, message: "Mobile number not found" });
             return;
         }
-        if (customer.authOtp !== otp) {
-            res.status(400).json({success: false, message: "Invalid OTP" });
-            return;
-        }
-        if (!customer.authOtpExpiry ||new Date() > customer.authOtpExpiry) {
-            res.status(400).json({success: false, message: "OTP expired" });
-            return;
-        }
+        // if (customer.authOtp !== otp) {
+        //     res.status(400).json({success: false, message: "Invalid OTP" });
+        //     return;
+        // }
+        // if (!customer.authOtpExpiry ||new Date() > customer.authOtpExpiry) {
+        //     res.status(400).json({success: false, message: "OTP expired" });
+        //     return;
+        // }
         const token = jwt.sign({ id: customer._id }, process.env.JWT_SECRET as string);
-        res.status(200).json({ success: true, message: "User Login Successful",token });
+        res.status(200).json({ success: true, message: "User Login Successful", customer, token });
     } catch (error: any) {
         res.status(400).json({ success: false, message: error.message });
     }
@@ -258,7 +260,8 @@ export const customerForgotPassword = async (req: Request, res: Response): Promi
 // Get customer by Id
 export const getCustomerById = async (req: Request, res: Response): Promise<void> => {
     try {
-        const customer = await Customer.findById(req.params.id).select("-authOtp -authOtpExpiry -password");
+        const CustomerId = ConvertToMongoId(req.params.id);
+        const customer = await Customer.findById(CustomerId).select("-authOtp -authOtpExpiry -password");
         res.status(200).json({ success: true, data: customer });
     } catch (error: any) {
         res.status(400).json({ success: false, message: error.message });
