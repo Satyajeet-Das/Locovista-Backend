@@ -13,8 +13,8 @@ app.use(helmet())
 // app.use(cors())
 
 // ------ Add i18n (internationalization)
-import i18n from './middlewares/i18n'
-app.use(i18n)
+// import i18n from './middlewares/i18n'
+// app.use(i18n)
 
 // TODO: Add other caching systems (like 'RabbitMQ') in the future
 
@@ -38,8 +38,8 @@ app.use(i18n)
 // app.use(limiter())
 
 // ------ Add logger to system
-import logger from './middlewares/api_log'
-app.use(logger)
+// import logger from './middlewares/api_log'
+// app.use(logger)
 
 // ------ Require all routes
 import docsRoutes from './routes/index';
@@ -57,7 +57,7 @@ app.use('/api/v1/service', serviceRoutes);
 app.use('/api/v1/address', addressRoutes);
 
 // ------ Add Response Transformer (& error handler) to system
-import transformer from './middlewares/transformer'
-app.use(transformer)
+// import transformer from './middlewares/transformer'
+// app.use(transformer)
 
 export default app
