@@ -13,7 +13,9 @@ const CustomerSchema: Schema = new Schema<ICustomer>(
     createdAt: { type: Date, default: Date.now },
     gender: { type: String, enum: ['Male', 'Female', 'Others'] },
     authOtp: { type: Number },
-    authOtpExpiry: { type: Date }
+    authOtpExpiry: { type: Date },
+    currentLocation: { type: Schema.Types.ObjectId, ref: 'Address' },
+    address: [{ type: Schema.Types.ObjectId, ref: 'Address' }],
   },
   { timestamps: true }
 )

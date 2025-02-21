@@ -14,7 +14,9 @@ interface ICustomer extends Document {
     createdAt: Date,
     gender?: "Male" | "Female" | "Others",
     authOtp?: number,
-    authOtpExpiry?: Date,
+  authOtpExpiry?: Date,
+  currentLocation: Types.ObjectId,
+  address: Types.ObjectId[],
     comparePassword: (candidatePassword: string) => Promise<boolean>;
 }
 
@@ -113,4 +115,28 @@ interface IReview {
   category: ServiceCategory;
   duration?: string; // Optional (e.g., "30 minutes", "2 hours")
   availability: boolean; // Indicates if the service is currently available
-  }
+}
+  
+interface IAddress extends Document {
+  _id: Types.ObjectId,
+  user: Types.ObjectId;
+  place_id: Number;
+  licence: string;
+  osm_type: string;
+  osm_id: Number;
+  lat: string;
+  lon: string;
+  display_name: string;
+  address: {
+    house_number: string;
+    road: string;
+    neighbourhood: string;
+    suburb: string;
+    city: string;
+    county: string;
+    state: string;
+    postcode: string;
+    country: string;
+    country_code: string;
+  };
+}
