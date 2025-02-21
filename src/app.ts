@@ -47,13 +47,14 @@ import authRoutes from "./routes/auth.route";
 import productRoutes from "./routes/product.route";
 import retailerRoutes from "./routes/retailer.route";
 import serviceRoutes from "./routes/service.route";
+import addressRoutes from './routes/address.route';
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1', docsRoutes);
 app.use('/api/v1/retailer', retailerRoutes);
 app.use('/api/v1/service', serviceRoutes);
-
+app.use('/api/v1/address', addressRoutes);
 
 // ------ Add Response Transformer (& error handler) to system
 import transformer from './middlewares/transformer'
