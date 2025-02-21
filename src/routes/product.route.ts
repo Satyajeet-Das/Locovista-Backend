@@ -13,6 +13,7 @@ router.delete('/product/:id', ProductControllers.deleteProduct);
 router.get('/product/:productId/review', ProductControllers.getAllReviews);
 router.post('/product/:productId/review', ProductControllers.addReview);
 router.get('/product/retailer/:name', ProductControllers.getRetailerIdsByProductName);
+router.post('/product/getProductsByImage',ProductControllers.getTextFromImage);
 // router.post('/product/compare', ProductControllers.compareProducts);
 
 export default router;

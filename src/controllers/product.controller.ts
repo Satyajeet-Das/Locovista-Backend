@@ -6,69 +6,102 @@ import { ProductCategory, ServiceCategory, BusinessCategory } from '../../types/
 import { DeleteObjectsCommand } from '@aws-sdk/client-s3'
 import s3 from '../configs/awsConfig'
 import { getDecryptedImageURL } from '../utils/decryptImage'
+import axios from 'axios'
 import 'dotenv/config'
 
-// Get All Products with Pagination and Filters for various fields
 export const getAllProducts = async (req: Request, res: Response): Promise<void> => {
-  const bucketName = 'locovista'
+  const bucketName = 'locovista';
   try {
-    // Extract query parameters
-    const { page = '1', limit = '10', category, minPrice, maxPrice, name, minRating, inStock } = req.query
+    // Extract query parameters including sort
+    const { 
+      page = '1', 
+      limit = '10', 
+      category, 
+      minPrice, 
+      maxPrice, 
+      query, 
+      minRating, 
+      inStock,
+      sort // New parameter for sorting
+    } = req.query;
 
-    // Ensure numeric parsing
-    const pageNum: number = parseInt(page as string, 10) || 1
-    const limitNum: number = parseInt(limit as string, 10) || 10
+    // Ensure numeric parsing for pagination
+    const pageNum: number = parseInt(page as string, 10) || 1;
+    const limitNum: number = parseInt(limit as string, 10) || 10;
 
     // Create the filter object
-    const filter: Record<string, any> = {}
+    const filter: Record<string, any> = {};
 
     // Filter by category
     if (category && Object.values(ProductCategory).includes(category as ProductCategory)) {
-      filter.category = category
+      filter.category = category;
     }
 
     // Filter by price range
     if (minPrice || maxPrice) {
-      filter.sellingPrice = {}
-      if (minPrice) filter.sellingPrice.$gte = parseInt(minPrice as string, 10)
-      if (maxPrice) filter.sellingPrice.$lte = parseInt(maxPrice as string, 10)
+      filter.sellingPrice = {};
+      if (minPrice) filter.sellingPrice.$gte = parseInt(minPrice as string, 10);
+      if (maxPrice) filter.sellingPrice.$lte = parseInt(maxPrice as string, 10);
     }
 
-    // Filter by name (case-insensitive)
-    if (name) {
-      filter.name = { $regex: name as string, $options: 'i' }
+    // Filter by query (case-insensitive)
+    if (query) {
+      filter.$or = [
+        { name: { $regex: query as string, $options: 'i' } },
+        { description: { $regex: query as string, $options: 'i' } }, 
+        { category: { $regex: query as string, $options: 'i' } } // Add more fields if needed
+      ];
     }
 
     // Filter by minimum rating
     if (minRating) {
-      filter.overallRating = { $gte: parseFloat(minRating as string) }
+      filter.overallRating = { $gte: parseFloat(minRating as string) };
     }
 
     // Filter by stock availability
     if (inStock === 'true') {
-      filter.stockQuantity = { $gt: 0 }
+      filter.stockQuantity = { $gt: 0 };
     }
 
-    // Query the database with filters
+    // Build sorting options from query parameter
+    // Expected format: sort=field1,-field2,...
+    let sortOptions: Record<string, any> = {};
+    if (sort) {
+      const sortStr = sort as string;
+      sortStr.split(',').forEach((field) => {
+        field = field.trim();
+        if (field.startsWith('-')) {
+          sortOptions[field.substring(1)] = -1;
+        } else {
+          sortOptions[field] = 1;
+        }
+      });
+    }
+
+    // Query the database with filters and sorting
     const products = await Product.find(filter)
+      .sort(sortOptions)
       .limit(limitNum)
-      .skip((pageNum - 1) * limitNum)
+      .skip((pageNum - 1) * limitNum);
 
     // Decrypt image URLs
     const decryptedProducts = await Promise.all(
       products.map(async (product) => {
-        const decryptedImages = await Promise.all(product.images.map((image) => getDecryptedImageURL(bucketName, image)))
-        return { ...product.toObject(), images: decryptedImages }
+        const decryptedImages = await Promise.all(
+          product.images.map((image) => getDecryptedImageURL(bucketName, image))
+        );
+        return { ...product.toObject(), images: decryptedImages };
       })
-    )
+    );
 
     // Send the response
-    res.status(200).json({ success: true, products: decryptedProducts })
+    res.status(200).json({ success: true, products: decryptedProducts });
   } catch (error: any) {
     // Send the error message
-    res.status(500).json({ success: false, message: error.message })
+    res.status(500).json({ success: false, message: error.message });
   }
-}
+};
+
 
 // Get a single product by ID
 export const getProductById = async (req: Request, res: Response): Promise<void> => {
@@ -396,3 +429,90 @@ export const getAllCategories = async (req: Request, res: Response): Promise<voi
     res.status(500).json({ success: false, message: error.message });
   }
 }
+
+
+export const getTextFromImage = async (req: Request, res: Response): Promise<void> => {
+  const bucketName = "locovista";
+  const { url } = req.body;
+  try {
+    // Log the request file to check if it's received correctly
+    console.log("Uploaded File:", req.file);
+
+    // Convert file buffer to base64 string
+    const imageUrl = url;
+
+    // Send image to OCR API
+    const response = await axios.post("http://127.0.0.1:8000/extract-product", { url: imageUrl });
+
+    // Extract product name from OCR response
+    const query = response.data.product_name;
+    if (!query) {
+      res.status(400).json({ success: false, message: "Failed to extract product name from image" });
+      return;
+    }
+
+    // Extract query parameters
+    const { page = "1", limit = "10", category, minPrice, maxPrice, minRating, inStock, sort } = req.query;
+
+    // Convert pagination parameters to numbers
+    const pageNum = parseInt(page as string, 10) || 1;
+    const limitNum = parseInt(limit as string, 10) || 10;
+
+    // Build filter object for MongoDB query
+    const filter: Record<string, any> = {};
+
+    if (category && Object.values(ProductCategory).includes(category as ProductCategory)) {
+      filter.category = category;
+    }
+
+    if (minPrice || maxPrice) {
+      filter.sellingPrice = {};
+      if (minPrice) filter.sellingPrice.$gte = parseInt(minPrice as string, 10);
+      if (maxPrice) filter.sellingPrice.$lte = parseInt(maxPrice as string, 10);
+    }
+
+    // Search filter using extracted query
+    filter.$or = [
+      { name: { $regex: query, $options: "i" } },
+      { description: { $regex: query, $options: "i" } },
+      { category: { $regex: query, $options: "i" } },
+    ];
+
+    if (minRating) {
+      filter.overallRating = { $gte: parseFloat(minRating as string) };
+    }
+
+    if (inStock === "true") {
+      filter.stockQuantity = { $gt: 0 };
+    }
+
+    // Sorting
+    let sortOptions: Record<string, any> = {};
+    if (sort) {
+      (sort as string).split(",").forEach((field) => {
+        const trimmedField = field.trim();
+        sortOptions[trimmedField.replace("-", "")] = trimmedField.startsWith("-") ? -1 : 1;
+      });
+    }
+
+    // Fetch products from database
+    const products = await Product.find(filter).sort(sortOptions).limit(limitNum).skip((pageNum - 1) * limitNum);
+
+    // Decrypt image URLs
+    const decryptedProducts = await Promise.all(
+      products.map(async (product) => {
+        const decryptedImages = await Promise.all(
+          product.images.map((image) => getDecryptedImageURL(bucketName, image))
+        );
+        return { ...product.toObject(), images: decryptedImages };
+      })
+    );
+
+    // Send response
+    res.status(200).json({ success: true, products: decryptedProducts });
+  } catch (error: any) {
+    console.error("Error processing image:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

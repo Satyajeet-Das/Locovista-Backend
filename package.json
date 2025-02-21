@@ -24,6 +24,7 @@
   "homepage": "https://github.com/amin-abbasi/typescript-boilerplate.git#readme",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.0",
     "dotenv": "16.4.7",
