@@ -12,36 +12,28 @@ const router = express.Router();
  * @route   POST /orders
  * @desc    Create a new order
  */
-export const addOrder =  async (req: Request, res: Response) => {
+
+export const addOrder = async (req: Request, res: Response): Promise<void> => {
   try {
+    // Create a new order from the request body
     const orderData: IOrder = req.body;
     const newOrder = new Order(orderData);
     await newOrder.save();
-    res.status(201).json(newOrder);
+
+    // Retrieve the newly created order with populated product details
+    const order = await Order.findById(newOrder._id).populate("orderItems.product");
+    if (!order) {
+      res.status(404).json({ message: "Order not found after creation" });
+      return;
+    }
+
+    res.status(201).json(order);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to create order", error });
+    res.status(500).json({ message: "Failed to create and fetch order", error });
   }
 };
 
-/**
- * @route   GET /orders/:orderId
- * @desc    Get order details by order ID (populates product details)
- */
-router.get("/orders/:orderId", async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { orderId } = req.params;
-    const order = await Order.findById(orderId).populate("orderItems.product");
-    if (!order) {
-      res.status(404).json({ message: "Order not found" });
-      return;
-    }
-    res.json(order);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to fetch order", error });
-  }
-});
 
 /**
  * @route   GET /orders/customer/:customerId
