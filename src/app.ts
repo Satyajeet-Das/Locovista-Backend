@@ -14,7 +14,7 @@ app.use(helmet())
 
 // ------ Add i18n (internationalization)
 // import i18n from './middlewares/i18n'
-// app.use(i18n) // i18n must be added before routes
+// app.use(i18n)
 
 // TODO: Add other caching systems (like 'RabbitMQ') in the future
 // ------ Socket.io Integration
