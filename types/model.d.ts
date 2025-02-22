@@ -140,3 +140,25 @@ interface IAddress extends Document {
     country_code: string;
   };
 }
+
+// Interface for individual order items
+export interface IOrderItem {
+  product: Types.ObjectId;  // Reference to the product ordered
+  name: string;             // Name of the product (for quick reference)
+  quantity: number;         // Quantity ordered
+  price: number;            // Price at which the product was sold
+}
+
+// Main Order interface extending Document for Mongoose compatibility
+export interface IOrder extends Document {
+  _id: Types.ObjectId;          // Unique order ID
+  user: Types.ObjectId;         // Reference to the user who placed the order
+  orderItems: IOrderItem[];     // List of items in the order
+  totalAmount: number;          // Total amount for the order
+  discountAmount?: number;      // Optional discount applied to the order
+  shippingAddress: string;      // Shipping address for order delivery
+  paymentMethod: string;        // Payment method used (e.g., Credit Card, PayPal)
+  orderStatus: OrderStatus;     // Current status of the order
+  createdAt: Date;              // Date when the order was created
+  updatedAt?: Date;             // Date when the order was last updated (optional)
+}
